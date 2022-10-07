@@ -26,8 +26,8 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent.KinesisEventRecord;
-import com.sigpwned.hermes.core.Message;
-import com.sigpwned.hermes.core.MessageHeaders;
+import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.core.model.MessageHeaders;
 
 public abstract class KinesisConsumerLambdaFunctionBase
     implements RequestHandler<KinesisEvent, Void> {

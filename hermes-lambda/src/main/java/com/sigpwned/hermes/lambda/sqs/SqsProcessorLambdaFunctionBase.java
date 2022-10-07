@@ -22,9 +22,9 @@ package com.sigpwned.hermes.lambda.sqs;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.Message;
-import com.sigpwned.hermes.core.MessageContent;
 import com.sigpwned.hermes.core.MessageProducer;
+import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.core.model.MessageContent;
 
 public abstract class SqsProcessorLambdaFunctionBase extends SqsConsumerLambdaFunctionBase {
   private final MessageProducer producer;

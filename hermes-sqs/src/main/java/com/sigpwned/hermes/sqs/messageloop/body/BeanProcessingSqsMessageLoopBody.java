@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,36 +17,35 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageloop.body;
 
+import static java.util.Objects.requireNonNull;
 import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
 import com.sigpwned.hermes.core.MessageProducer;
-import com.sigpwned.hermes.core.model.Message;
 import com.sigpwned.hermes.core.model.MessageContent;
 import com.sigpwned.hermes.core.serialization.BeanMessageDeserializer;
 import com.sigpwned.hermes.core.serialization.BeanMessageSerializer;
+import com.sigpwned.hermes.sqs.messageconsumer.SqsMessage;
 
-public abstract class BeanSnsProcessorLambdaFunctionBase<I, O>
-    extends SnsProcessorLambdaFunctionBase {
+public abstract class BeanProcessingSqsMessageLoopBody<I, O> extends ProcessingSqsMessageLoopBody {
   private final BeanMessageDeserializer<I> deserializer;
   private final BeanMessageSerializer<O> serializer;
 
-  public BeanSnsProcessorLambdaFunctionBase(MessageProducer producer,
+  public BeanProcessingSqsMessageLoopBody(MessageProducer producer,
       BeanMessageDeserializer<I> deserializer, BeanMessageSerializer<O> serializer) {
     super(producer);
-    this.deserializer = deserializer;
-    this.serializer = serializer;
+    this.deserializer = requireNonNull(deserializer);
+    this.serializer = requireNonNull(serializer);
   }
 
   @Override
-  public List<MessageContent> processMessages(List<Message> inputMessages, Context context) {
+  public List<MessageContent> processMessages(List<SqsMessage> inputMessages) {
     List<I> inputBeans = inputMessages.stream().map(getDeserializer()::deserializeBean).toList();
-    List<O> outputBeans = processBeans(inputBeans, context);
+    List<O> outputBeans = processBeans(inputBeans);
     return getSerializer().serializeBeans(outputBeans);
   }
 
-  public abstract List<O> processBeans(List<I> inputBeans, Context context);
+  public abstract List<O> processBeans(List<I> inputBeans);
 
   /**
    * @return the deserializer

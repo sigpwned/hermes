@@ -30,12 +30,12 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.MessageAttribute;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNSRecord;
-import com.sigpwned.hermes.core.Message;
-import com.sigpwned.hermes.core.MessageHeader;
-import com.sigpwned.hermes.core.MessageHeaderValue;
-import com.sigpwned.hermes.core.MessageHeaders;
 import com.sigpwned.hermes.core.header.NumberMessageHeaderValue;
 import com.sigpwned.hermes.core.header.StringMessageHeaderValue;
+import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.core.model.MessageHeader;
+import com.sigpwned.hermes.core.model.MessageHeaderValue;
+import com.sigpwned.hermes.core.model.MessageHeaders;
 
 public abstract class SnsConsumerLambdaFunctionBase implements RequestHandler<SNSEvent, Void> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SnsConsumerLambdaFunctionBase.class);

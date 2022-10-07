@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,34 +17,32 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageproducer;
 
-import static java.util.Objects.requireNonNull;
-import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.MessageProducer;
-import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.aws.util.Sizeof;
+import com.sigpwned.hermes.core.messageproducer.BatchingMessageProducer;
 import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.sqs.SqsDestination;
+import com.sigpwned.hermes.sqs.util.Sqs;
 
-public abstract class SnsProcessorLambdaFunctionBase extends SnsConsumerLambdaFunctionBase {
-  private final MessageProducer producer;
-
-  public SnsProcessorLambdaFunctionBase(MessageProducer producer) {
-    this.producer = requireNonNull(producer);
+public abstract class SqsBatchingMessageProducer extends BatchingMessageProducer
+    implements SqsMessageProducer {
+  public SqsBatchingMessageProducer(SqsMessageProducer delegate) {
+    super(delegate, Sqs.MAX_SEND_PAYLOAD_SIZE);
   }
 
-  public void handleRequest(List<Message> inputMessages, Context context) {
-    List<MessageContent> outputMessages = processMessages(inputMessages, context);
-    getProducer().send(outputMessages);
+  @Override
+  protected long size(MessageContent message) {
+    return Sizeof.messageContent(message);
   }
 
-  public abstract List<MessageContent> processMessages(List<Message> inputMessages,
-      Context context);
+  @Override
+  public SqsDestination getDestination() {
+    return getDelegate().getDestination();
+  }
 
-  /**
-   * @return the producer
-   */
-  protected MessageProducer getProducer() {
-    return producer;
+  @Override
+  public SqsMessageProducer getDelegate() {
+    return (SqsMessageProducer) super.getDelegate();
   }
 }

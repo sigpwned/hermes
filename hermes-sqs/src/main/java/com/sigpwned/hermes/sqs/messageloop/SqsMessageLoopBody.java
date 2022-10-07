@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,32 +17,11 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageloop;
 
-import static java.util.Objects.requireNonNull;
 import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.model.Message;
-import com.sigpwned.hermes.core.serialization.BeanMessageDeserializer;
+import com.sigpwned.hermes.sqs.messageconsumer.SqsMessage;
 
-public abstract class BeanSnsConsumerLambdaFunctionBase<T> extends SnsConsumerLambdaFunctionBase {
-  private final BeanMessageDeserializer<T> deserializer;
-
-  public BeanSnsConsumerLambdaFunctionBase(BeanMessageDeserializer<T> deserializer) {
-    this.deserializer = requireNonNull(deserializer);
-  }
-
-  @Override
-  public void handleMessages(List<Message> messages, Context context) {
-    handleBeans(messages.stream().map(getDeserializer()::deserializeBean).toList(), context);
-  }
-
-  public abstract void handleBeans(List<T> values, Context context);
-
-  /**
-   * @return the deserializer
-   */
-  private BeanMessageDeserializer<T> getDeserializer() {
-    return deserializer;
-  }
+public interface SqsMessageLoopBody {
+  public void acceptMessages(List<SqsMessage> messages);
 }

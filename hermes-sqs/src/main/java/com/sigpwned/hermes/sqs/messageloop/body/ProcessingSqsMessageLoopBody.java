@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,34 +17,35 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageloop.body;
 
 import static java.util.Objects.requireNonNull;
 import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
 import com.sigpwned.hermes.core.MessageProducer;
-import com.sigpwned.hermes.core.model.Message;
 import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.sqs.messageconsumer.SqsMessage;
+import com.sigpwned.hermes.sqs.messageloop.SqsMessageLoopBody;
 
-public abstract class SnsProcessorLambdaFunctionBase extends SnsConsumerLambdaFunctionBase {
+public abstract class ProcessingSqsMessageLoopBody implements SqsMessageLoopBody {
   private final MessageProducer producer;
 
-  public SnsProcessorLambdaFunctionBase(MessageProducer producer) {
+  public ProcessingSqsMessageLoopBody(MessageProducer producer) {
     this.producer = requireNonNull(producer);
   }
 
-  public void handleRequest(List<Message> inputMessages, Context context) {
-    List<MessageContent> outputMessages = processMessages(inputMessages, context);
-    getProducer().send(outputMessages);
+  @Override
+  public void acceptMessages(List<SqsMessage> inputMessages) {
+    List<MessageContent> outputMessages = processMessages(inputMessages);
+    if (!outputMessages.isEmpty())
+      getProducer().send(outputMessages);
   }
 
-  public abstract List<MessageContent> processMessages(List<Message> inputMessages,
-      Context context);
+  public abstract List<MessageContent> processMessages(List<SqsMessage> inputMessages);
 
   /**
    * @return the producer
    */
-  protected MessageProducer getProducer() {
+  private MessageProducer getProducer() {
     return producer;
   }
 }

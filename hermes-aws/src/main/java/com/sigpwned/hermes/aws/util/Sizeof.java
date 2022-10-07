@@ -26,10 +26,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.sigpwned.hermes.core.MessageContent;
-import com.sigpwned.hermes.core.MessageHeader;
-import com.sigpwned.hermes.core.MessageHeaderValue;
-import com.sigpwned.hermes.core.MessageHeaders;
+import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.core.model.MessageHeader;
+import com.sigpwned.hermes.core.model.MessageHeaderValue;
+import com.sigpwned.hermes.core.model.MessageHeaders;
 import com.sigpwned.hermes.core.util.CountingOutputStream;
 
 public final class Sizeof {

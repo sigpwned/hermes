@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,34 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageloop;
 
-import static java.util.Objects.requireNonNull;
 import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.MessageProducer;
 import com.sigpwned.hermes.core.model.Message;
 import com.sigpwned.hermes.core.model.MessageContent;
 
-public abstract class SnsProcessorLambdaFunctionBase extends SnsConsumerLambdaFunctionBase {
-  private final MessageProducer producer;
-
-  public SnsProcessorLambdaFunctionBase(MessageProducer producer) {
-    this.producer = requireNonNull(producer);
-  }
-
-  public void handleRequest(List<Message> inputMessages, Context context) {
-    List<MessageContent> outputMessages = processMessages(inputMessages, context);
-    getProducer().send(outputMessages);
-  }
-
-  public abstract List<MessageContent> processMessages(List<Message> inputMessages,
-      Context context);
-
-  /**
-   * @return the producer
-   */
-  protected MessageProducer getProducer() {
-    return producer;
-  }
+public interface MessageProcessorBody {
+  public List<MessageContent> process(List<? extends Message> messages) throws InterruptedException;
 }

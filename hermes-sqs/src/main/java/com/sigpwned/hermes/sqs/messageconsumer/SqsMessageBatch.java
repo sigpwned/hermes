@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,34 +17,34 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageconsumer;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Iterator;
 import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.MessageProducer;
-import com.sigpwned.hermes.core.model.Message;
-import com.sigpwned.hermes.core.model.MessageContent;
+import java.util.stream.Stream;
+import com.sigpwned.hermes.sqs.SqsDestination;
 
-public abstract class SnsProcessorLambdaFunctionBase extends SnsConsumerLambdaFunctionBase {
-  private final MessageProducer producer;
 
-  public SnsProcessorLambdaFunctionBase(MessageProducer producer) {
-    this.producer = requireNonNull(producer);
-  }
+public interface SqsMessageBatch extends Iterable<SqsMessage>, AutoCloseable {
+  /**
+   * @return the messages
+   */
+  public List<SqsMessage> getMessages();
 
-  public void handleRequest(List<Message> inputMessages, Context context) {
-    List<MessageContent> outputMessages = processMessages(inputMessages, context);
-    getProducer().send(outputMessages);
-  }
+  @Override
+  public Iterator<SqsMessage> iterator();
 
-  public abstract List<MessageContent> processMessages(List<Message> inputMessages,
-      Context context);
+  public Stream<SqsMessage> stream();
+
+  public int size();
+
+  public boolean isEmpty();
+
+  @Override
+  public void close();
 
   /**
-   * @return the producer
+   * @return the destination
    */
-  protected MessageProducer getProducer() {
-    return producer;
-  }
+  public SqsDestination getDestination();
 }

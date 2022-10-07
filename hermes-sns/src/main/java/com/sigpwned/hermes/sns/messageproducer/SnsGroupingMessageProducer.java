@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sns
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,34 +17,32 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sns.messageproducer;
 
-import static java.util.Objects.requireNonNull;
-import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.MessageProducer;
-import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.aws.util.Sizeof;
+import com.sigpwned.hermes.core.messageproducer.GroupingMessageProducer;
 import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.sns.SnsDestination;
+import com.sigpwned.hermes.sns.util.Sns;
 
-public abstract class SnsProcessorLambdaFunctionBase extends SnsConsumerLambdaFunctionBase {
-  private final MessageProducer producer;
-
-  public SnsProcessorLambdaFunctionBase(MessageProducer producer) {
-    this.producer = requireNonNull(producer);
+public class SnsGroupingMessageProducer extends GroupingMessageProducer
+    implements SnsMessageProducer {
+  public SnsGroupingMessageProducer(SnsMessageProducer delegate) {
+    super(delegate, Sns.MAX_PAYLOAD_SIZE, Sns.MAX_BATCH_LENGTH);
   }
 
-  public void handleRequest(List<Message> inputMessages, Context context) {
-    List<MessageContent> outputMessages = processMessages(inputMessages, context);
-    getProducer().send(outputMessages);
+  @Override
+  protected long size(MessageContent message) {
+    return Sizeof.messageContent(message);
   }
 
-  public abstract List<MessageContent> processMessages(List<Message> inputMessages,
-      Context context);
+  @Override
+  public SnsMessageProducer getDelegate() {
+    return (SnsMessageProducer) super.getDelegate();
+  }
 
-  /**
-   * @return the producer
-   */
-  protected MessageProducer getProducer() {
-    return producer;
+  @Override
+  public SnsDestination getDestination() {
+    return getDelegate().getDestination();
   }
 }

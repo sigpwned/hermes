@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-core
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,37 +17,46 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.header;
+package com.sigpwned.hermes.sqs.messageconsumer;
 
 import static java.util.Objects.requireNonNull;
-import java.math.BigDecimal;
 import java.util.Objects;
-import com.sigpwned.hermes.core.model.MessageHeaderValue;
+import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.core.model.MessageContent;
 
-public class NumberMessageHeaderValue extends MessageHeaderValue {
-  public static NumberMessageHeaderValue of(BigDecimal value) {
-    return new NumberMessageHeaderValue(value);
-  }
+public class SqsMessage extends Message {
+  private final String receiptHandle;
+  private boolean retired;
 
-  private final BigDecimal value;
-
-  public NumberMessageHeaderValue(BigDecimal value) {
-    super(Type.NUMBER);
-    this.value = requireNonNull(value);
+  public SqsMessage(String id, MessageContent content, String receiptHandle) {
+    super(id, content);
+    this.receiptHandle = requireNonNull(receiptHandle);
+    this.retired = false;
   }
 
   /**
-   * @return the value
+   * @return the receiptHandle
    */
-  public BigDecimal getValue() {
-    return value;
+  public String getReceiptHandle() {
+    return receiptHandle;
+  }
+
+  public void retire() {
+    retired = true;
+  }
+
+  /**
+   * @return the retired
+   */
+  public boolean retired() {
+    return retired;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + Objects.hash(value);
+    result = prime * result + Objects.hash(receiptHandle, retired);
     return result;
   }
 
@@ -59,12 +68,12 @@ public class NumberMessageHeaderValue extends MessageHeaderValue {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    NumberMessageHeaderValue other = (NumberMessageHeaderValue) obj;
-    return Objects.equals(value, other.value);
+    SqsMessage other = (SqsMessage) obj;
+    return Objects.equals(receiptHandle, other.receiptHandle) && retired == other.retired;
   }
 
   @Override
   public String toString() {
-    return "NumberMessageHeaderValue [value=" + value + "]";
+    return "SqsMessage [receiptHandle=" + receiptHandle + ", retired=" + retired + "]";
   }
 }

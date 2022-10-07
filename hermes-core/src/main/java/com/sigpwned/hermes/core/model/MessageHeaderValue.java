@@ -17,54 +17,67 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.header;
+package com.sigpwned.hermes.core.model;
 
 import static java.util.Objects.requireNonNull;
 import java.math.BigDecimal;
 import java.util.Objects;
-import com.sigpwned.hermes.core.model.MessageHeaderValue;
+import com.sigpwned.hermes.core.header.NumberMessageHeaderValue;
+import com.sigpwned.hermes.core.header.StringMessageHeaderValue;
 
-public class NumberMessageHeaderValue extends MessageHeaderValue {
+public abstract class MessageHeaderValue {
+  public static enum Type {
+    STRING, NUMBER;
+  }
+
   public static NumberMessageHeaderValue of(BigDecimal value) {
     return new NumberMessageHeaderValue(value);
   }
 
-  private final BigDecimal value;
+  public static StringMessageHeaderValue of(String value) {
+    return new StringMessageHeaderValue(value);
+  }
 
-  public NumberMessageHeaderValue(BigDecimal value) {
-    super(Type.NUMBER);
-    this.value = requireNonNull(value);
+  private final Type type;
+
+  public MessageHeaderValue(Type type) {
+    this.type = requireNonNull(type);
   }
 
   /**
-   * @return the value
+   * @return the type
    */
-  public BigDecimal getValue() {
-    return value;
+  public Type getType() {
+    return type;
+  }
+
+  public StringMessageHeaderValue asString() {
+    return (StringMessageHeaderValue) this;
+  }
+
+  public NumberMessageHeaderValue asNumber() {
+    return (NumberMessageHeaderValue) this;
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Objects.hash(value);
-    return result;
+    return Objects.hash(type);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    NumberMessageHeaderValue other = (NumberMessageHeaderValue) obj;
-    return Objects.equals(value, other.value);
+    MessageHeaderValue other = (MessageHeaderValue) obj;
+    return type == other.type;
   }
 
   @Override
   public String toString() {
-    return "NumberMessageHeaderValue [value=" + value + "]";
+    return "MessageHeaderValue [type=" + type + "]";
   }
 }

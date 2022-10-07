@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-core
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,11 +17,8 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core;
+package com.sigpwned.hermes.sqs.messageloop;
 
-import java.util.List;
-import com.sigpwned.hermes.core.model.MessageContent;
-
-public interface MessageProducer {
-  public void send(List<MessageContent> messages);
+public interface SqsReceivePlanner {
+  public SqsReceivePlan plan() throws InterruptedException;
 }

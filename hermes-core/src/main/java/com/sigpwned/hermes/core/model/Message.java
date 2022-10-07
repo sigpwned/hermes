@@ -17,37 +17,43 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.header;
+package com.sigpwned.hermes.core.model;
 
 import static java.util.Objects.requireNonNull;
-import java.math.BigDecimal;
 import java.util.Objects;
-import com.sigpwned.hermes.core.model.MessageHeaderValue;
 
-public class NumberMessageHeaderValue extends MessageHeaderValue {
-  public static NumberMessageHeaderValue of(BigDecimal value) {
-    return new NumberMessageHeaderValue(value);
+public class Message extends MessageContent {
+  public static Message of(String id, MessageHeaders headers, String body) {
+    return new Message(id, headers, body);
   }
 
-  private final BigDecimal value;
+  public static Message of(String id, MessageContent content) {
+    return of(id, content.getHeaders(), content.getBody());
+  }
 
-  public NumberMessageHeaderValue(BigDecimal value) {
-    super(Type.NUMBER);
-    this.value = requireNonNull(value);
+  private final String id;
+
+  public Message(String id, MessageContent content) {
+    this(id, content.getHeaders(), content.getBody());
+  }
+
+  public Message(String id, MessageHeaders headers, String body) {
+    super(headers, body);
+    this.id = requireNonNull(id);
   }
 
   /**
-   * @return the value
+   * @return the id
    */
-  public BigDecimal getValue() {
-    return value;
+  public String getId() {
+    return id;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + Objects.hash(value);
+    result = prime * result + Objects.hash(id);
     return result;
   }
 
@@ -59,12 +65,12 @@ public class NumberMessageHeaderValue extends MessageHeaderValue {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    NumberMessageHeaderValue other = (NumberMessageHeaderValue) obj;
-    return Objects.equals(value, other.value);
+    Message other = (Message) obj;
+    return Objects.equals(id, other.id);
   }
 
   @Override
   public String toString() {
-    return "NumberMessageHeaderValue [value=" + value + "]";
+    return "Message [id=" + id + "]";
   }
 }

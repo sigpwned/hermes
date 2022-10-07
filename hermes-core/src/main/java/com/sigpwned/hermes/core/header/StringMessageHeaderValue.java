@@ -21,7 +21,7 @@ package com.sigpwned.hermes.core.header;
 
 import static java.util.Objects.requireNonNull;
 import java.util.Objects;
-import com.sigpwned.hermes.core.MessageHeaderValue;
+import com.sigpwned.hermes.core.model.MessageHeaderValue;
 
 public class StringMessageHeaderValue extends MessageHeaderValue {
   public static StringMessageHeaderValue of(String value) {

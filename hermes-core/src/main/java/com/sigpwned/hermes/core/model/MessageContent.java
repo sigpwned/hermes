@@ -17,54 +17,57 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.header;
+package com.sigpwned.hermes.core.model;
 
 import static java.util.Objects.requireNonNull;
-import java.math.BigDecimal;
 import java.util.Objects;
-import com.sigpwned.hermes.core.model.MessageHeaderValue;
 
-public class NumberMessageHeaderValue extends MessageHeaderValue {
-  public static NumberMessageHeaderValue of(BigDecimal value) {
-    return new NumberMessageHeaderValue(value);
+public class MessageContent {
+  public static MessageContent of(MessageHeaders headers, String body) {
+    return new MessageContent(headers, body);
   }
 
-  private final BigDecimal value;
+  private final MessageHeaders headers;
+  private final String body;
 
-  public NumberMessageHeaderValue(BigDecimal value) {
-    super(Type.NUMBER);
-    this.value = requireNonNull(value);
+  public MessageContent(MessageHeaders headers, String content) {
+    this.headers = requireNonNull(headers);
+    this.body = requireNonNull(content);
   }
 
   /**
-   * @return the value
+   * @return the headers
    */
-  public BigDecimal getValue() {
-    return value;
+  public MessageHeaders getHeaders() {
+    return headers;
+  }
+
+  /**
+   * @return the content
+   */
+  public String getBody() {
+    return body;
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Objects.hash(value);
-    return result;
+    return Objects.hash(body, headers);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    NumberMessageHeaderValue other = (NumberMessageHeaderValue) obj;
-    return Objects.equals(value, other.value);
+    MessageContent other = (MessageContent) obj;
+    return Objects.equals(body, other.body) && Objects.equals(headers, other.headers);
   }
 
   @Override
   public String toString() {
-    return "NumberMessageHeaderValue [value=" + value + "]";
+    return "MessageBody [headers=" + headers + ", body=" + body + "]";
   }
 }

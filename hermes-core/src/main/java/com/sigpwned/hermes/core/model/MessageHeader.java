@@ -17,54 +17,57 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.header;
+package com.sigpwned.hermes.core.model;
 
 import static java.util.Objects.requireNonNull;
-import java.math.BigDecimal;
 import java.util.Objects;
-import com.sigpwned.hermes.core.model.MessageHeaderValue;
 
-public class NumberMessageHeaderValue extends MessageHeaderValue {
-  public static NumberMessageHeaderValue of(BigDecimal value) {
-    return new NumberMessageHeaderValue(value);
+public class MessageHeader {
+  public static MessageHeader of(String name, MessageHeaderValue value) {
+    return new MessageHeader(name, value);
   }
 
-  private final BigDecimal value;
+  private final String name;
+  private final MessageHeaderValue value;
 
-  public NumberMessageHeaderValue(BigDecimal value) {
-    super(Type.NUMBER);
+  public MessageHeader(String name, MessageHeaderValue value) {
+    this.name = requireNonNull(name);
     this.value = requireNonNull(value);
+  }
+
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
   }
 
   /**
    * @return the value
    */
-  public BigDecimal getValue() {
+  public MessageHeaderValue getValue() {
     return value;
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Objects.hash(value);
-    return result;
+    return Objects.hash(name, value);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    NumberMessageHeaderValue other = (NumberMessageHeaderValue) obj;
-    return Objects.equals(value, other.value);
+    MessageHeader other = (MessageHeader) obj;
+    return Objects.equals(name, other.name) && Objects.equals(value, other.value);
   }
 
   @Override
   public String toString() {
-    return "NumberMessageHeaderValue [value=" + value + "]";
+    return "MessageHeader [name=" + name + ", value=" + value + "]";
   }
 }

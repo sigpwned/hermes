@@ -19,34 +19,46 @@
  */
 package com.sigpwned.hermes.lambda.sqs;
 
-import static java.util.Objects.requireNonNull;
 import java.util.List;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.BeanMessageDeserializer;
-import com.sigpwned.hermes.core.BeanMessageProducer;
+import com.sigpwned.hermes.core.MessageProducer;
+import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.core.serialization.BeanMessageDeserializer;
+import com.sigpwned.hermes.core.serialization.BeanMessageSerializer;
 
 public abstract class BeanSqsProcessorLambdaFunctionBase<I, O>
-    extends BeanSqsConsumerLambdaFunctionBase<I> {
-  private final BeanMessageProducer<O> producer;
+    extends SqsProcessorLambdaFunctionBase {
+  private final BeanMessageDeserializer<I> deserializer;
+  private final BeanMessageSerializer<O> serializer;
 
-  public BeanSqsProcessorLambdaFunctionBase(BeanMessageDeserializer<I> deserializer,
-      BeanMessageProducer<O> producer) {
-    super(deserializer);
-    this.producer = requireNonNull(producer);
+  public BeanSqsProcessorLambdaFunctionBase(MessageProducer producer,
+      BeanMessageDeserializer<I> deserializer, BeanMessageSerializer<O> serializer) {
+    super(producer);
+    this.deserializer = deserializer;
+    this.serializer = serializer;
   }
 
   @Override
-  public void handleBeans(List<I> inputBeans, Context context) {
+  public List<MessageContent> processMessages(List<Message> inputMessages, Context context) {
+    List<I> inputBeans = inputMessages.stream().map(getDeserializer()::deserializeBean).toList();
     List<O> outputBeans = processBeans(inputBeans, context);
-    getProducer().send(outputBeans);
+    return getSerializer().serializeBeans(outputBeans);
   }
 
-  public abstract List<O> processBeans(List<I> inputMessages, Context context);
+  public abstract List<O> processBeans(List<I> inputBeans, Context context);
 
   /**
-   * @return the producer
+   * @return the deserializer
    */
-  protected BeanMessageProducer<O> getProducer() {
-    return producer;
+  private BeanMessageDeserializer<I> getDeserializer() {
+    return deserializer;
+  }
+
+  /**
+   * @return the serializer
+   */
+  private BeanMessageSerializer<O> getSerializer() {
+    return serializer;
   }
 }

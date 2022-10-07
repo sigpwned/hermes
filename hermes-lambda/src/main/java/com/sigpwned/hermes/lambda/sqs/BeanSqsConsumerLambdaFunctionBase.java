@@ -22,8 +22,8 @@ package com.sigpwned.hermes.lambda.sqs;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.BeanMessageDeserializer;
-import com.sigpwned.hermes.core.Message;
+import com.sigpwned.hermes.core.model.Message;
+import com.sigpwned.hermes.core.serialization.BeanMessageDeserializer;
 
 public abstract class BeanSqsConsumerLambdaFunctionBase<T> extends SqsConsumerLambdaFunctionBase {
   private final BeanMessageDeserializer<T> deserializer;

@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * hermes-lambda
+ * hermes-sqs
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,34 +17,33 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.lambda.sns;
+package com.sigpwned.hermes.sqs.messageloop.body;
 
-import static java.util.Objects.requireNonNull;
+import java.util.ArrayList;
 import java.util.List;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.sigpwned.hermes.core.MessageProducer;
-import com.sigpwned.hermes.core.model.Message;
-import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.core.serialization.BeanMessageDeserializer;
+import com.sigpwned.hermes.sqs.messageconsumer.SqsMessage;
 
-public abstract class SnsProcessorLambdaFunctionBase extends SnsConsumerLambdaFunctionBase {
-  private final MessageProducer producer;
+public abstract class BeanConsumingSqsMessageLoopBody<T> extends ConsumingSqsMessageLoopBody {
+  private final BeanMessageDeserializer<T> deserializer;
 
-  public SnsProcessorLambdaFunctionBase(MessageProducer producer) {
-    this.producer = requireNonNull(producer);
+  public BeanConsumingSqsMessageLoopBody(BeanMessageDeserializer<T> deserializer) {
+    this.deserializer = deserializer;
   }
 
-  public void handleRequest(List<Message> inputMessages, Context context) {
-    List<MessageContent> outputMessages = processMessages(inputMessages, context);
-    getProducer().send(outputMessages);
+  @Override
+  public void acceptMessages(List<SqsMessage> messages) {
+    List<T> beans = new ArrayList<>();
+    for (SqsMessage message : messages)
+      beans.add(getDeserializer().deserializeBean(message));
   }
 
-  public abstract List<MessageContent> processMessages(List<Message> inputMessages,
-      Context context);
+  public abstract void acceptBeans(List<T> beans);
 
   /**
-   * @return the producer
+   * @return the deserializer
    */
-  protected MessageProducer getProducer() {
-    return producer;
+  private BeanMessageDeserializer<T> getDeserializer() {
+    return deserializer;
   }
 }

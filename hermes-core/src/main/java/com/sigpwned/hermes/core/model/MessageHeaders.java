@@ -17,41 +17,53 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.util;
+package com.sigpwned.hermes.core.model;
 
+import static java.util.Collections.unmodifiableList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
-import com.sigpwned.hermes.core.model.MessageContent;
+import java.util.Optional;
+import java.util.stream.Stream;
 
-public class SizedMessageContent {
-  public static SizedMessageContent of(MessageContent message, int size) {
-    return new SizedMessageContent(message, size);
+public class MessageHeaders implements Iterable<MessageHeader> {
+  public static final MessageHeaders EMPTY = of(List.of());
+
+  public static MessageHeaders of() {
+    return EMPTY;
   }
 
-  private final MessageContent message;
-  private final int size;
-
-  public SizedMessageContent(MessageContent message, int size) {
-    this.message = message;
-    this.size = size;
+  public static MessageHeaders of(List<MessageHeader> headers) {
+    return new MessageHeaders(headers);
   }
 
-  /**
-   * @return the message
-   */
-  public MessageContent getMessage() {
-    return message;
+  private final List<MessageHeader> headers;
+
+  public MessageHeaders(List<MessageHeader> headers) {
+    // TODO Check for duplicates
+    this.headers = unmodifiableList(headers);
   }
 
-  /**
-   * @return the size
-   */
-  public int getSize() {
-    return size;
+  public List<MessageHeader> getHeaders() {
+    return headers;
+  }
+
+  public Optional<MessageHeader> findMessageHeaderByName(String name) {
+    return getHeaders().stream().filter(h -> h.getName().equals(name)).findFirst();
+  }
+
+  @Override
+  public Iterator<MessageHeader> iterator() {
+    return getHeaders().iterator();
+  }
+
+  public Stream<MessageHeader> stream() {
+    return getHeaders().stream();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, size);
+    return Objects.hash(headers);
   }
 
   @Override
@@ -62,12 +74,12 @@ public class SizedMessageContent {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    SizedMessageContent other = (SizedMessageContent) obj;
-    return Objects.equals(message, other.message) && size == other.size;
+    MessageHeaders other = (MessageHeaders) obj;
+    return Objects.equals(headers, other.headers);
   }
 
   @Override
   public String toString() {
-    return "SizedMessageContent [message=" + message + ", size=" + size + "]";
+    return "MessageHeaders [headers=" + headers + "]";
   }
 }
