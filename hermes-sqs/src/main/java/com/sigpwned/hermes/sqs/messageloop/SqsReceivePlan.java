@@ -34,12 +34,6 @@ public class SqsReceivePlan {
   private final int maxBatchSize;
 
   /**
-   * Amount of time to wait for first message in batch, in seconds. Because SQS charges per call,
-   * this value should generally be a multiple of 20, which is the maximum long poll duration.
-   */
-  private final int batchStartWait;
-
-  /**
    * If at least one message is received in the first {@link #batchStartWait} seconds of the receive
    * but fewer than {@link #maxBatchSize} messages, then continue attempting to receive messages to
    * complete the batch up to this many additional seconds. The batch is returned when it is
@@ -54,12 +48,9 @@ public class SqsReceivePlan {
    */
   private final int visibilityTimeout;
 
-  public SqsReceivePlan(int maxBatchSize, int batchStartWait, int batchCompleteWait,
-      int visibilityTimeout) {
+  public SqsReceivePlan(int maxBatchSize, int batchCompleteWait, int visibilityTimeout) {
     if (maxBatchSize <= 0)
       throw new IllegalArgumentException("maxBatchSize must be at least 1");
-    if (batchStartWait < 0)
-      throw new IllegalArgumentException("batchStartWait must be at least 0");
     if (batchCompleteWait < 0)
       throw new IllegalArgumentException("batchCompleteWait must be at least 0");
     if (visibilityTimeout < 0)
@@ -68,7 +59,6 @@ public class SqsReceivePlan {
       throw new IllegalArgumentException(
           "visibilityTimeout must be no more than " + MAX_VISIBILITY_TIMEOUT_SECONDS);
     this.maxBatchSize = maxBatchSize;
-    this.batchStartWait = batchStartWait;
     this.batchCompleteWait = batchCompleteWait;
     this.visibilityTimeout = visibilityTimeout;
   }
@@ -78,13 +68,6 @@ public class SqsReceivePlan {
    */
   public int getMaxBatchSize() {
     return maxBatchSize;
-  }
-
-  /**
-   * @return the batchStartWait
-   */
-  public int getBatchStartWait() {
-    return batchStartWait;
   }
 
   /**
@@ -103,7 +86,7 @@ public class SqsReceivePlan {
 
   @Override
   public int hashCode() {
-    return Objects.hash(batchCompleteWait, batchStartWait, maxBatchSize, visibilityTimeout);
+    return Objects.hash(batchCompleteWait, maxBatchSize, visibilityTimeout);
   }
 
   @Override
@@ -115,14 +98,13 @@ public class SqsReceivePlan {
     if (getClass() != obj.getClass())
       return false;
     SqsReceivePlan other = (SqsReceivePlan) obj;
-    return batchCompleteWait == other.batchCompleteWait && batchStartWait == other.batchStartWait
-        && maxBatchSize == other.maxBatchSize && visibilityTimeout == other.visibilityTimeout;
+    return batchCompleteWait == other.batchCompleteWait && maxBatchSize == other.maxBatchSize
+        && visibilityTimeout == other.visibilityTimeout;
   }
 
   @Override
   public String toString() {
-    return "SqsReceivePlan [maxBatchSize=" + maxBatchSize + ", batchStartWait=" + batchStartWait
-        + ", batchCompleteWait=" + batchCompleteWait + ", visibilityTimeout=" + visibilityTimeout
-        + "]";
+    return "SqsReceivePlan [maxBatchSize=" + maxBatchSize + ", batchCompleteWait="
+        + batchCompleteWait + ", visibilityTimeout=" + visibilityTimeout + "]";
   }
 }

@@ -22,6 +22,7 @@ package com.sigpwned.hermes.sqs.messageloop;
 import java.util.List;
 import com.sigpwned.hermes.sqs.messageconsumer.SqsMessage;
 
+@FunctionalInterface
 public interface SqsMessageLoopBody {
-  public void acceptMessages(List<SqsMessage> messages);
+  public void acceptMessages(List<SqsMessage> messages) throws InterruptedException;
 }

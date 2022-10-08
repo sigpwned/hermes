@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sigpwned.hermes.sqs.messageconsumer.SqsMessageBatch;
@@ -33,11 +34,11 @@ import com.sigpwned.hermes.sqs.util.Sqs;
 public class SqsMessageLoop implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SqsMessageLoop.class);
 
-  private final SqsReceivePlanner planner;
   private final SqsMessageConsumer consumer;
+  private final SqsReceivePlanner planner;
   private final SqsMessageLoopBody body;
 
-  public SqsMessageLoop(SqsReceivePlanner planner, SqsMessageConsumer consumer,
+  public SqsMessageLoop(SqsMessageConsumer consumer, SqsReceivePlanner planner,
       SqsMessageLoopBody body) {
     this.planner = requireNonNull(planner);
     this.consumer = requireNonNull(consumer);
@@ -50,7 +51,7 @@ public class SqsMessageLoop implements Runnable {
         try {
           SqsReceivePlan plan = plan();
           try (SqsMessageBatch messages = receive(plan)) {
-            accept(messages);
+            acceptMessages(messages);
           }
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
@@ -75,60 +76,70 @@ public class SqsMessageLoop implements Runnable {
   }
 
   protected SqsMessageBatch receive(SqsReceivePlan plan) {
-    SqsMessageBatch batch0;
-    do {
-      int maxNumberOfMessages = Math.min(plan.getMaxBatchSize(), Sqs.MAX_MAX_NUMBER_OF_MESSAGES);
-      int waitTimeSeconds = Sqs.MAX_WAIT_TIME_SECONDS;
-      int visibilityTimeout = plan.getVisibilityTimeout();
-      batch0 = getConsumer().receive(maxNumberOfMessages, waitTimeSeconds, visibilityTimeout);
-    } while (batch0.isEmpty());
-
     SqsMessageBatch result;
-    if (batch0.size() < plan.getMaxBatchSize()) {
-      List<SqsMessageBatch> batches = new ArrayList<>();
-      batches.add(batch0);
 
-      int currentBatchSize = batch0.size();
-
-      long batchCompleteBegin = now();
-      long batchCompleteExpiration =
-          batchCompleteBegin + TimeUnit.SECONDS.toNanos(plan.getBatchCompleteWait());
-      long now = batchCompleteBegin;
-      while (currentBatchSize < plan.getMaxBatchSize() && now < batchCompleteExpiration) {
-        int maxNumberOfMessages =
-            Math.min(plan.getMaxBatchSize() - currentBatchSize, Sqs.MAX_MAX_NUMBER_OF_MESSAGES);
-        int waitTimeSeconds =
-            (int) Math.min(TimeUnit.NANOSECONDS.toSeconds(batchCompleteExpiration - now),
-                Sqs.MAX_WAIT_TIME_SECONDS);
-        int visibilityTimeout = plan.getVisibilityTimeout();
-        SqsMessageBatch batchi =
-            getConsumer().receive(maxNumberOfMessages, waitTimeSeconds, visibilityTimeout);
-
-        if (!batchi.isEmpty()) {
-          batches.add(batchi);
-          currentBatchSize = currentBatchSize + batchi.size();
-        }
-
-        now = now();
+    SqsMessageBatch firstBatch =
+        startReceive(Math.min(plan.getMaxBatchSize(), Sqs.MAX_MAX_NUMBER_OF_MESSAGES),
+            plan.getVisibilityTimeout());
+    if (plan.getMaxBatchSize() > firstBatch.size() && plan.getBatchCompleteWait() > 0) {
+      List<SqsMessageBatch> lastBatches =
+          completeReceive(plan.getMaxBatchSize() - firstBatch.size(), plan.getBatchCompleteWait(),
+              plan.getVisibilityTimeout());
+      if (lastBatches.isEmpty()) {
+        result = firstBatch;
+      } else {
+        result = new CombinedSqsMessageBatch(
+            Stream.concat(Stream.of(firstBatch), lastBatches.stream()).toList());
       }
-
-      result = batches.size() == 1 ? batches.get(0) : new CombinedSqsMessageBatch(batches);
     } else {
-      result = batch0;
+      result = firstBatch;
     }
 
     return result;
   }
 
-  protected void accept(SqsMessageBatch messages) {
-    getBody().acceptMessages(messages.getMessages());
+
+  protected SqsMessageBatch startReceive(int maxNumberOfMessages, int visibilityTimeout) {
+    SqsMessageBatch result;
+    do {
+      result =
+          getConsumer().receive(maxNumberOfMessages, Sqs.MAX_WAIT_TIME_SECONDS, visibilityTimeout);
+    } while (result.isEmpty());
+    return result;
   }
 
-  /**
-   * @return the planner
-   */
-  private SqsReceivePlanner getPlanner() {
-    return planner;
+
+  protected List<SqsMessageBatch> completeReceive(int maxTotalMessages, int batchCompleteWait,
+      int visibilityTimeout) {
+    List<SqsMessageBatch> result = new ArrayList<>();
+
+    int currentTotalMessages = 0;
+    long batchCompleteBegin = now();
+    long batchCompleteExpiration = batchCompleteBegin + TimeUnit.SECONDS.toNanos(batchCompleteWait);
+    long now = batchCompleteBegin;
+    while (currentTotalMessages < maxTotalMessages && now < batchCompleteExpiration) {
+      int maxNumberOfMessages =
+          Math.min(maxTotalMessages - currentTotalMessages, Sqs.MAX_MAX_NUMBER_OF_MESSAGES);
+      int waitTimeSeconds =
+          (int) Math.min(TimeUnit.NANOSECONDS.toSeconds(batchCompleteExpiration - now),
+              Sqs.MAX_WAIT_TIME_SECONDS);
+      SqsMessageBatch batchi =
+          getConsumer().receive(maxNumberOfMessages, waitTimeSeconds, visibilityTimeout);
+
+      if (!batchi.isEmpty()) {
+        result.add(batchi);
+        currentTotalMessages = currentTotalMessages + batchi.size();
+      }
+
+      now = now();
+    }
+
+    return result;
+  }
+
+
+  protected void acceptMessages(SqsMessageBatch messages) throws InterruptedException {
+    getBody().acceptMessages(messages.getMessages());
   }
 
   /**
@@ -136,6 +147,13 @@ public class SqsMessageLoop implements Runnable {
    */
   private SqsMessageConsumer getConsumer() {
     return consumer;
+  }
+
+  /**
+   * @return the planner
+   */
+  private SqsReceivePlanner getPlanner() {
+    return planner;
   }
 
   /**

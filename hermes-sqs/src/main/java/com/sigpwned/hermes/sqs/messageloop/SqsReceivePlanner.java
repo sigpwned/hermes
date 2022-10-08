@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.sqs.messageloop;
 
+@FunctionalInterface
 public interface SqsReceivePlanner {
   public SqsReceivePlan plan() throws InterruptedException;
 }
