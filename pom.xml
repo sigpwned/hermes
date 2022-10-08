@@ -105,9 +105,9 @@
     <modules>
         <module>hermes-core</module>
         <module>hermes-aws</module>
-        <module>hermes-sqs</module>
-        <module>hermes-sns</module>
-        <module>hermes-lambda</module>
+        <module>hermes-aws-sqs</module>
+        <module>hermes-aws-sns</module>
+        <module>hermes-aws-lambda</module>
     </modules>
 
     <dependencyManagement>
