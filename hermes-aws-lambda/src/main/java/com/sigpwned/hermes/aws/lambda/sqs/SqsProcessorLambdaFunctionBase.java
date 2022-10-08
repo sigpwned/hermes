@@ -29,7 +29,7 @@ import com.sigpwned.hermes.core.model.MessageContent;
 public abstract class SqsProcessorLambdaFunctionBase extends SqsConsumerLambdaFunctionBase {
   private final MessageProducer producer;
 
-  public SqsProcessorLambdaFunctionBase(MessageProducer producer) {
+  protected SqsProcessorLambdaFunctionBase(MessageProducer producer) {
     this.producer = requireNonNull(producer);
   }
 

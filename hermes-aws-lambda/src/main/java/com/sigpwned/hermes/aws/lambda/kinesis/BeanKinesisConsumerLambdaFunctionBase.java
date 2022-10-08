@@ -29,7 +29,7 @@ public abstract class BeanKinesisConsumerLambdaFunctionBase<T>
     extends KinesisConsumerLambdaFunctionBase {
   private final BeanMessageDeserializer<T> deserializer;
 
-  public BeanKinesisConsumerLambdaFunctionBase(BeanMessageDeserializer<T> deserializer) {
+  protected BeanKinesisConsumerLambdaFunctionBase(BeanMessageDeserializer<T> deserializer) {
     this.deserializer = requireNonNull(deserializer);
   }
 

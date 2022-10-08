@@ -32,7 +32,7 @@ public abstract class BeanSqsProcessorLambdaFunctionBase<I, O>
   private final BeanMessageDeserializer<I> deserializer;
   private final BeanMessageSerializer<O> serializer;
 
-  public BeanSqsProcessorLambdaFunctionBase(MessageProducer producer,
+  protected BeanSqsProcessorLambdaFunctionBase(MessageProducer producer,
       BeanMessageDeserializer<I> deserializer, BeanMessageSerializer<O> serializer) {
     super(producer);
     this.deserializer = deserializer;

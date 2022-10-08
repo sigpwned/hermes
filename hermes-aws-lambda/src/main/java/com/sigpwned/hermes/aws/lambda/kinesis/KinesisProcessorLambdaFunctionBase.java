@@ -29,7 +29,7 @@ import com.sigpwned.hermes.core.model.MessageContent;
 public abstract class KinesisProcessorLambdaFunctionBase extends KinesisConsumerLambdaFunctionBase {
   private final MessageProducer producer;
 
-  public KinesisProcessorLambdaFunctionBase(MessageProducer producer) {
+  protected KinesisProcessorLambdaFunctionBase(MessageProducer producer) {
     this.producer = requireNonNull(producer);
   }
 

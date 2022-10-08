@@ -28,7 +28,7 @@ import com.sigpwned.hermes.core.serialization.BeanMessageDeserializer;
 public abstract class BeanSqsConsumerLambdaFunctionBase<T> extends SqsConsumerLambdaFunctionBase {
   private final BeanMessageDeserializer<T> deserializer;
 
-  public BeanSqsConsumerLambdaFunctionBase(BeanMessageDeserializer<T> deserializer) {
+  protected BeanSqsConsumerLambdaFunctionBase(BeanMessageDeserializer<T> deserializer) {
     this.deserializer = requireNonNull(deserializer);
   }
 
