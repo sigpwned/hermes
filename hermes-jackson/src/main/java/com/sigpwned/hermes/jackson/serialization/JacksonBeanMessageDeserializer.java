@@ -34,19 +34,19 @@ public class JacksonBeanMessageDeserializer<T> implements BeanMessageDeserialize
   private final ObjectMapper mapper;
   private final JavaType type;
 
-  public JacksonBeanMessageDeserializer(Class<?> type) {
+  public JacksonBeanMessageDeserializer(Class<T> type) {
     this(Jackson.DEFAULT_OBJECT_MAPPER, type);
   }
 
-  public JacksonBeanMessageDeserializer(ObjectMapper mapper, Class<?> type) {
+  public JacksonBeanMessageDeserializer(ObjectMapper mapper, Class<T> type) {
     this(mapper, TypeFactory.defaultInstance().constructType(type));
   }
 
-  public JacksonBeanMessageDeserializer(TypeReference<?> type) {
+  public JacksonBeanMessageDeserializer(TypeReference<T> type) {
     this(Jackson.DEFAULT_OBJECT_MAPPER, TypeFactory.defaultInstance().constructType(type));
   }
 
-  public JacksonBeanMessageDeserializer(ObjectMapper mapper, TypeReference<?> type) {
+  public JacksonBeanMessageDeserializer(ObjectMapper mapper, TypeReference<T> type) {
     this(mapper, TypeFactory.defaultInstance().constructType(type));
   }
 

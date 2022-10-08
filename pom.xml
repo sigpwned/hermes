@@ -109,6 +109,7 @@
         <module>hermes-aws-sns</module>
         <module>hermes-aws-lambda</module>
         <module>hermes-jackson</module>
+        <module>hermes-aws-lambda-jackson</module>
     </modules>
 
     <dependencyManagement>
