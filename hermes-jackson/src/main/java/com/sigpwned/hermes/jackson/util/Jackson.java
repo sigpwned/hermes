@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.hermes.core.util;
+package com.sigpwned.hermes.jackson.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;

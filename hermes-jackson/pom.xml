@@ -7,27 +7,39 @@
         <version>0.0.0-b0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hermes-aws-sns</artifactId>
-    <name>hermes-aws-sns</name>
-
+    <artifactId>hermes-jackson</artifactId>
+    <name>hermes-jackson</name>
+    
     <dependencies>
         <dependency>
             <groupId>com.sigpwned</groupId>
-            <artifactId>hermes-aws</artifactId>
+            <artifactId>hermes-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>sns</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>url-connection-client</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-parameter-names</artifactId>
+        </dependency>        
 
         <dependency>
             <groupId>org.slf4j</groupId>
