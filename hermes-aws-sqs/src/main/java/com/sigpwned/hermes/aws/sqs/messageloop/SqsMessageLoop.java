@@ -43,6 +43,15 @@ public class SqsMessageLoop implements Runnable {
   private final SqsReceivePlanner planner;
   private final SqsMessageLoopBody body;
 
+  public SqsMessageLoop(SqsDestination destination, SqsMessageLoopBody body) {
+    this(destination, SqsReceivePlanner.ofFastProcessingImmediateSmallBatchPlan(), body);
+  }
+
+  public SqsMessageLoop(SqsDestination destination, int visibilityTimeout,
+      SqsMessageLoopBody body) {
+    this(destination, SqsReceivePlanner.ofImmediateSmallBatchPlan(visibilityTimeout), body);
+  }
+
   public SqsMessageLoop(SqsDestination destination, SqsReceivePlan plan, SqsMessageLoopBody body) {
     this(destination, SqsReceivePlanner.ofPlan(plan), body);
   }

@@ -106,6 +106,7 @@
         <module>hermes-core</module>
         <module>hermes-aws</module>
         <module>hermes-aws-sqs</module>
+        <module>hermes-aws-sqs-jackson</module>
         <module>hermes-aws-sns</module>
         <module>hermes-aws-lambda</module>
         <module>hermes-jackson</module>
