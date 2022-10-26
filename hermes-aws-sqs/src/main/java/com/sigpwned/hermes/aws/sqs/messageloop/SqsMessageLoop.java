@@ -20,6 +20,9 @@
 package com.sigpwned.hermes.aws.sqs.messageloop;
 
 import static java.util.Objects.requireNonNull;
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +34,7 @@ import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageConsumer;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.batch.CombinedSqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.util.Sqs;
+import software.amazon.awssdk.services.sqs.model.OverLimitException;
 
 public class SqsMessageLoop implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SqsMessageLoop.class);
@@ -110,14 +114,47 @@ public class SqsMessageLoop implements Runnable {
 
 
   protected SqsMessageBatch startReceive(int maxNumberOfMessages, int visibilityTimeout) {
-    SqsMessageBatch result;
+    int consecutiveErrors = 0;
+    SqsMessageBatch result = null;
     do {
-      result =
-          getConsumer().receive(maxNumberOfMessages, Sqs.MAX_WAIT_TIME_SECONDS, visibilityTimeout);
-    } while (result.isEmpty());
+      if (consecutiveErrors > 0) {
+        Duration backoff = startReceiveBackoff(consecutiveErrors);
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug("SQS destination {} backing off for {} millis due to errors",
+              getConsumer().getDestination(), backoff.toMillis());
+        try {
+          Thread.sleep(backoff.toMillis());
+        } catch (InterruptedException e) {
+          if (LOGGER.isWarnEnabled())
+            LOGGER.warn("SQS destination {} was interrupted. Bailing out...",
+                getConsumer().getDestination());
+          Thread.currentThread().interrupt();
+          throw new UncheckedIOException(new InterruptedIOException());
+        }
+      }
+      try {
+        result = getConsumer().receive(maxNumberOfMessages, Sqs.MAX_WAIT_TIME_SECONDS,
+            visibilityTimeout);
+        consecutiveErrors = 0;
+      } catch (OverLimitException e) {
+        if (LOGGER.isWarnEnabled())
+          LOGGER.warn("SQS destination {} is over limit. Backing off...",
+              getConsumer().getDestination());
+        consecutiveErrors = consecutiveErrors + 1;
+      }
+    } while (result == null || result.isEmpty());
     return result;
   }
 
+  /**
+   * Hook for determining exponential backoff from errors
+   */
+  protected Duration startReceiveBackoff(int consecutiveErrors) {
+    if (consecutiveErrors < 0)
+      throw new IllegalArgumentException("consecutiveErrors must not be negative");
+    return consecutiveErrors > 0 ? Duration.ofSeconds(1 << Math.min(consecutiveErrors - 1, 6))
+        : Duration.ZERO;
+  }
 
   protected List<SqsMessageBatch> completeReceive(int maxTotalMessages, int batchCompleteWait,
       int visibilityTimeout) {
@@ -133,8 +170,16 @@ public class SqsMessageLoop implements Runnable {
       int waitTimeSeconds =
           (int) Math.min(TimeUnit.NANOSECONDS.toSeconds(batchCompleteExpiration - now),
               Sqs.MAX_WAIT_TIME_SECONDS);
-      SqsMessageBatch batchi =
-          getConsumer().receive(maxNumberOfMessages, waitTimeSeconds, visibilityTimeout);
+      SqsMessageBatch batchi;
+      try {
+        batchi = getConsumer().receive(maxNumberOfMessages, waitTimeSeconds, visibilityTimeout);
+      } catch (OverLimitException e) {
+        // Let's just end the batch right here.
+        if (LOGGER.isWarnEnabled())
+          LOGGER.warn("SQS destination {} is over limit. Bailing out of current batch...",
+              getConsumer().getDestination(), e);
+        break;
+      }
 
       if (!batchi.isEmpty()) {
         result.add(batchi);

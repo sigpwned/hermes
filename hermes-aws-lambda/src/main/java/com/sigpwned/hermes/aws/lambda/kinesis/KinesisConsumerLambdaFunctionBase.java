@@ -23,14 +23,14 @@ import static java.util.stream.Collectors.toList;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent.KinesisEventRecord;
+import com.sigpwned.hermes.aws.lambda.LambdaFunctionBase;
 import com.sigpwned.hermes.core.model.Message;
 import com.sigpwned.hermes.core.model.MessageHeaders;
 
 public abstract class KinesisConsumerLambdaFunctionBase
-    implements RequestHandler<KinesisEvent, Void> {
+    extends LambdaFunctionBase<KinesisEvent, Void> {
   @Override
   public Void handleRequest(KinesisEvent input, Context context) {
     List<Message> messages = input.getRecords().stream()

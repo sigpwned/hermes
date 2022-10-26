@@ -26,10 +26,10 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.MessageAttribute;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNSRecord;
+import com.sigpwned.hermes.aws.lambda.LambdaFunctionBase;
 import com.sigpwned.hermes.core.header.NumberMessageHeaderValue;
 import com.sigpwned.hermes.core.header.StringMessageHeaderValue;
 import com.sigpwned.hermes.core.model.Message;
@@ -37,7 +37,7 @@ import com.sigpwned.hermes.core.model.MessageHeader;
 import com.sigpwned.hermes.core.model.MessageHeaderValue;
 import com.sigpwned.hermes.core.model.MessageHeaders;
 
-public abstract class SnsConsumerLambdaFunctionBase implements RequestHandler<SNSEvent, Void> {
+public abstract class SnsConsumerLambdaFunctionBase extends LambdaFunctionBase<SNSEvent, Void> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SnsConsumerLambdaFunctionBase.class);
 
   @Override

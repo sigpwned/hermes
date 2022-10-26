@@ -19,10 +19,35 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageloop;
 
+import com.sigpwned.hermes.aws.sqs.util.Sqs;
+
 @FunctionalInterface
 public interface SqsReceivePlanner {
   public static SqsReceivePlanner ofPlan(SqsReceivePlan plan) {
     return () -> plan;
+  }
+
+  /**
+   * Creates a receive planner that receives and sends messages to the processor immediately as they
+   * come in with small batches that's suitable for a processor that runs in the given number of
+   * seconds. User is responsible for padding the timeout to account for message deletion; in
+   * practice, 5 seconds is more than sufficient.
+   */
+  public static SqsReceivePlanner ofImmediateSmallBatchPlan(int visibilityTimeout) {
+    // Do not wait for any particular batch size. Process messages immediately on receipt.
+    int batchCompleteWait = 0;
+    return ofPlan(
+        SqsReceivePlan.of(Sqs.MAX_MAX_NUMBER_OF_MESSAGES, batchCompleteWait, visibilityTimeout));
+  }
+
+  public static final int DEFAULT_FAST_PROCESSING_VISIBILITY_TIMEOUT_SECONDS = 30;
+
+  /**
+   * Creates a receive planner that receives and sends messages to the processor immediately as they
+   * come in with small batches that's suitable for a processor that runs quickly.
+   */
+  public static SqsReceivePlanner ofFastProcessingImmediateSmallBatchPlan() {
+    return ofImmediateSmallBatchPlan(DEFAULT_FAST_PROCESSING_VISIBILITY_TIMEOUT_SECONDS);
   }
 
   public SqsReceivePlan plan() throws InterruptedException;

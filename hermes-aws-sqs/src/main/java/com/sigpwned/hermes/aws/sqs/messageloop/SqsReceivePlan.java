@@ -23,6 +23,10 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class SqsReceivePlan {
+  public static SqsReceivePlan of(int maxBatchSize, int batchCompleteWait, int visibilityTimeout) {
+    return new SqsReceivePlan(maxBatchSize, batchCompleteWait, visibilityTimeout);
+  }
+
   /**
    * https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html#configuring-visibility-timeout
    */
