@@ -33,7 +33,7 @@ public class SqsReceivePlan {
   /**
    * Receive one message with a visibility timeout of 30 seconds.
    * 
-   * @see #ofOne(int)
+   * @see #ofBatchSizeOne(int)
    */
   public static SqsReceivePlan ofBatchSizeOne() {
     return ofBatchSizeOne(DEFAULT_VISIBILITY_TIMEOUT_SECONDS);
