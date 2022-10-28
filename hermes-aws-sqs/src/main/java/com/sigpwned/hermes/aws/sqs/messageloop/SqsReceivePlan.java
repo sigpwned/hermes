@@ -21,10 +21,49 @@ package com.sigpwned.hermes.aws.sqs.messageloop;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import com.sigpwned.hermes.aws.sqs.util.Sqs;
 
 public class SqsReceivePlan {
+  public static final int DEFAULT_VISIBILITY_TIMEOUT_SECONDS = 30;
+
   public static SqsReceivePlan of(int maxBatchSize, int batchCompleteWait, int visibilityTimeout) {
     return new SqsReceivePlan(maxBatchSize, batchCompleteWait, visibilityTimeout);
+  }
+
+  /**
+   * Receive one message with a visibility timeout of 30 seconds.
+   * 
+   * @see #ofOne(int)
+   */
+  public static SqsReceivePlan ofBatchSizeOne() {
+    return ofBatchSizeOne(DEFAULT_VISIBILITY_TIMEOUT_SECONDS);
+  }
+
+  /**
+   * Receive one message with the given visibility timeout.
+   */
+  public static SqsReceivePlan ofBatchSizeOne(int visibilityTimeout) {
+    return new SqsReceivePlan(1, 0, visibilityTimeout);
+  }
+
+  /**
+   * Receive up to the SQS maximum batch size with a visibility timeout of 30 seconds. Process
+   * received messages immediately.
+   * 
+   * @see #ofSmallEfficientBatches(int)
+   */
+  public static SqsReceivePlan ofSmallEfficientBatches() {
+    return ofSmallEfficientBatches(DEFAULT_VISIBILITY_TIMEOUT_SECONDS);
+  }
+
+  /**
+   * Receive up to the SQS maximum batch size with the given visibility timeout. Process received
+   * messages immediately.
+   */
+  public static SqsReceivePlan ofSmallEfficientBatches(int visibilityTimeout) {
+    // Do not wait for any particular batch size. Process messages immediately on receipt.
+    int batchCompleteWait = 0;
+    return of(Sqs.MAX_MAX_NUMBER_OF_MESSAGES, batchCompleteWait, visibilityTimeout);
   }
 
   /**

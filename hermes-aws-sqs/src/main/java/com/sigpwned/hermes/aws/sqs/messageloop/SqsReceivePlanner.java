@@ -40,7 +40,7 @@ public interface SqsReceivePlanner {
         SqsReceivePlan.of(Sqs.MAX_MAX_NUMBER_OF_MESSAGES, batchCompleteWait, visibilityTimeout));
   }
 
-  public static final int DEFAULT_FAST_PROCESSING_VISIBILITY_TIMEOUT_SECONDS = 30;
+  public static final int DEFAULT_FAST_PROCESSING_VISIBILITY_TIMEOUT_SECONDS = SqsReceivePlan.DEFAULT_VISIBILITY_TIMEOUT_SECONDS;
 
   /**
    * Creates a receive planner that receives and sends messages to the processor immediately as they
