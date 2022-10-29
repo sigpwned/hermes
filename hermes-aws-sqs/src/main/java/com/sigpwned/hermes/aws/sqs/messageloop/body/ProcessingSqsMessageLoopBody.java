@@ -22,6 +22,7 @@ package com.sigpwned.hermes.aws.sqs.messageloop.body;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
+import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsMessageLoopBody;
 import com.sigpwned.hermes.core.MessageProducer;
 import com.sigpwned.hermes.core.model.MessageContent;
@@ -34,12 +35,11 @@ public abstract class ProcessingSqsMessageLoopBody implements SqsMessageLoopBody
   }
 
   @Override
-  public final void acceptMessages(List<SqsMessage> inputMessages) {
-    List<MessageContent> outputMessages = processMessages(inputMessages);
+  public final void acceptBatch(SqsMessageBatch batch) {
+    List<MessageContent> outputMessages = processMessages(batch.getMessages());
     if (!outputMessages.isEmpty())
       getProducer().send(outputMessages);
-    for (SqsMessage inputMessage : inputMessages)
-      inputMessage.retire();
+    batch.retireAll();
   }
 
   protected abstract List<MessageContent> processMessages(List<SqsMessage> inputMessages);

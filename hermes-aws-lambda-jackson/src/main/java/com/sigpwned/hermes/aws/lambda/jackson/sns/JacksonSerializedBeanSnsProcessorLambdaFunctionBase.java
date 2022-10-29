@@ -21,6 +21,7 @@ package com.sigpwned.hermes.aws.lambda.jackson.sns;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sigpwned.hermes.aws.lambda.sns.BeanSnsProcessorLambdaFunctionBase;
 import com.sigpwned.hermes.core.MessageProducer;
 import com.sigpwned.hermes.jackson.serialization.JacksonBeanMessageDeserializer;
@@ -36,14 +37,32 @@ public abstract class JacksonSerializedBeanSnsProcessorLambdaFunctionBase<I, O>
   }
 
   protected JacksonSerializedBeanSnsProcessorLambdaFunctionBase(MessageProducer producer,
+      ObjectMapper mapper, Class<I> type) {
+    super(producer, new JacksonBeanMessageDeserializer<>(mapper, type),
+        new JacksonBeanMessageSerializer<>(mapper));
+  }
+
+  protected JacksonSerializedBeanSnsProcessorLambdaFunctionBase(MessageProducer producer,
       TypeReference<I> type) {
     super(producer, new JacksonBeanMessageDeserializer<>(type),
         new JacksonBeanMessageSerializer<>());
   }
 
   protected JacksonSerializedBeanSnsProcessorLambdaFunctionBase(MessageProducer producer,
+      ObjectMapper mapper, TypeReference<I> type) {
+    super(producer, new JacksonBeanMessageDeserializer<>(mapper, type),
+        new JacksonBeanMessageSerializer<>(mapper));
+  }
+
+  protected JacksonSerializedBeanSnsProcessorLambdaFunctionBase(MessageProducer producer,
       JavaType type) {
     super(producer, new JacksonBeanMessageDeserializer<>(type),
         new JacksonBeanMessageSerializer<>());
+  }
+
+  protected JacksonSerializedBeanSnsProcessorLambdaFunctionBase(MessageProducer producer,
+      ObjectMapper mapper, JavaType type) {
+    super(producer, new JacksonBeanMessageDeserializer<>(mapper, type),
+        new JacksonBeanMessageSerializer<>(mapper));
   }
 }

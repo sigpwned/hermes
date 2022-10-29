@@ -202,8 +202,8 @@ public class SqsMessageLoop implements Runnable {
   }
 
 
-  protected void acceptMessages(SqsMessageBatch messages) throws InterruptedException {
-    getBody().acceptMessages(messages.getMessages());
+  protected void acceptMessages(SqsMessageBatch batch) throws InterruptedException {
+    getBody().acceptBatch(batch);
   }
 
   /**

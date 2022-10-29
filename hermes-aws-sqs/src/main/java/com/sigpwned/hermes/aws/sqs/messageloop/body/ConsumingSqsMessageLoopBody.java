@@ -21,15 +21,15 @@ package com.sigpwned.hermes.aws.sqs.messageloop.body;
 
 import java.util.List;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
+import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsMessageLoopBody;
 
 public abstract class ConsumingSqsMessageLoopBody implements SqsMessageLoopBody {
   @Override
-  public final void acceptMessages(List<SqsMessage> messages) throws InterruptedException {
-    consumeMessages(messages);
-    for (SqsMessage message : messages)
-      message.retire();
+  public final void acceptBatch(SqsMessageBatch batch) throws InterruptedException {
+    acceptMessages(batch.getMessages());
+    batch.retireAll();
   }
 
-  protected abstract void consumeMessages(List<SqsMessage> messages);
+  protected abstract void acceptMessages(List<SqsMessage> messages);
 }

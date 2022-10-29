@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
+import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsMessageLoopBody;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsReceivePlan;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsReceivePlanner;
@@ -74,10 +74,10 @@ public class BackoffSqsReceivePlanner implements SqsReceivePlanner {
   public SqsMessageLoopBody wrap(SqsMessageLoopBody body) {
     return new SqsMessageLoopBody() {
       @Override
-      public void acceptMessages(List<SqsMessage> messages) throws InterruptedException {
+      public void acceptBatch(SqsMessageBatch batch) throws InterruptedException {
         boolean success = false;
         try {
-          body.acceptMessages(messages);
+          body.acceptBatch(batch);
           success = true;
         } finally {
           if (success == false)

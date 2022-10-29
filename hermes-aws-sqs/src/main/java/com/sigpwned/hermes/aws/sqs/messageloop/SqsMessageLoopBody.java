@@ -19,10 +19,9 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageloop;
 
-import java.util.List;
-import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
+import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
 
 @FunctionalInterface
 public interface SqsMessageLoopBody {
-  public void acceptMessages(List<SqsMessage> messages) throws InterruptedException;
+  public void acceptBatch(SqsMessageBatch batch) throws InterruptedException;
 }

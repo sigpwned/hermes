@@ -21,6 +21,7 @@ package com.sigpwned.hermes.aws.lambda.jackson.kinesis;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sigpwned.hermes.aws.lambda.kinesis.BeanKinesisConsumerLambdaFunctionBase;
 import com.sigpwned.hermes.jackson.serialization.JacksonBeanMessageDeserializer;
 
@@ -31,11 +32,26 @@ public abstract class JacksonSerializedBeanKinesisConsumerLambdaFunctionBase<T>
     super(new JacksonBeanMessageDeserializer<>(type));
   }
 
+  protected JacksonSerializedBeanKinesisConsumerLambdaFunctionBase(ObjectMapper mapper,
+      Class<T> type) {
+    super(new JacksonBeanMessageDeserializer<>(mapper, type));
+  }
+
   protected JacksonSerializedBeanKinesisConsumerLambdaFunctionBase(TypeReference<T> type) {
     super(new JacksonBeanMessageDeserializer<>(type));
   }
 
+  protected JacksonSerializedBeanKinesisConsumerLambdaFunctionBase(ObjectMapper mapper,
+      TypeReference<T> type) {
+    super(new JacksonBeanMessageDeserializer<>(mapper, type));
+  }
+
   protected JacksonSerializedBeanKinesisConsumerLambdaFunctionBase(JavaType type) {
     super(new JacksonBeanMessageDeserializer<>(type));
+  }
+
+  protected JacksonSerializedBeanKinesisConsumerLambdaFunctionBase(ObjectMapper mapper,
+      JavaType type) {
+    super(new JacksonBeanMessageDeserializer<>(mapper, type));
   }
 }
