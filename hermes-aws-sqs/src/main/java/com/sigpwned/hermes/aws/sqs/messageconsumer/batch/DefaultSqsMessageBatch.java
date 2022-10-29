@@ -21,9 +21,7 @@ package com.sigpwned.hermes.aws.sqs.messageconsumer.batch;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import com.sigpwned.hermes.aws.sqs.SqsDestination;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
@@ -53,26 +51,6 @@ public class DefaultSqsMessageBatch implements SqsMessageBatch {
   @Override
   public List<SqsMessage> getMessages() {
     return messages;
-  }
-
-  @Override
-  public Iterator<SqsMessage> iterator() {
-    return messages.iterator();
-  }
-
-  @Override
-  public Stream<SqsMessage> stream() {
-    return messages.stream();
-  }
-
-  @Override
-  public int size() {
-    return messages.size();
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return size() == 0;
   }
 
   @Override

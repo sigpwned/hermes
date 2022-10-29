@@ -39,7 +39,7 @@ public abstract class BeanProcessingSqsMessageLoopBody<I, O> extends ProcessingS
   }
 
   @Override
-  public List<MessageContent> processMessages(List<SqsMessage> inputMessages) {
+  protected List<MessageContent> processMessages(List<SqsMessage> inputMessages) {
     List<I> inputBeans = inputMessages.stream().map(getDeserializer()::deserializeBean).toList();
     List<O> outputBeans = processBeans(inputBeans);
     return getSerializer().serializeBeans(outputBeans);

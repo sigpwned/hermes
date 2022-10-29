@@ -34,13 +34,15 @@ public abstract class ProcessingSqsMessageLoopBody implements SqsMessageLoopBody
   }
 
   @Override
-  public void acceptMessages(List<SqsMessage> inputMessages) {
+  public final void acceptMessages(List<SqsMessage> inputMessages) {
     List<MessageContent> outputMessages = processMessages(inputMessages);
     if (!outputMessages.isEmpty())
       getProducer().send(outputMessages);
+    for (SqsMessage inputMessage : inputMessages)
+      inputMessage.retire();
   }
 
-  public abstract List<MessageContent> processMessages(List<SqsMessage> inputMessages);
+  protected abstract List<MessageContent> processMessages(List<SqsMessage> inputMessages);
 
   /**
    * @return the producer

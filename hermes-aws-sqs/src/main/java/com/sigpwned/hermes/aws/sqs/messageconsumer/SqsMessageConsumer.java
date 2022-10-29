@@ -19,11 +19,19 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageconsumer;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Stream;
 import com.sigpwned.hermes.aws.sqs.SqsDestination;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.batch.DefaultSqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.util.Sqs;
+import com.sigpwned.hermes.aws.util.Messaging;
+import com.sigpwned.hermes.core.model.MessageHeader;
+import com.sigpwned.hermes.core.model.MessageHeaderValue;
+import com.sigpwned.hermes.core.model.MessageHeaders;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sqs.model.MessageSystemAttributeName;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
@@ -66,9 +74,42 @@ public class SqsMessageConsumer {
         .visibilityTimeout(visibilityTimeout).waitTimeSeconds(waitTimeSeconds).build());
 
     return new DefaultSqsMessageBatch(getClient(), getDestination(),
-        response.hasMessages() && !response.messages().isEmpty()
-            ? response.messages().stream().map(m -> (SqsMessage) null).toList()
-            : List.of());
+        response.hasMessages()
+            && !response.messages().isEmpty()
+                ? response.messages().stream()
+                    .map(
+                        m -> SqsMessage.of(m.messageId(),
+                            MessageHeaders.of(Stream
+                                .concat(
+                                    m.messageAttributes().entrySet().stream()
+                                        .map(e -> toMessageHeader(e.getKey(), e.getValue())),
+                                    m.attributes().entrySet().stream()
+                                        .map(e -> toMessageHeader(e.getKey(), e.getValue())))
+                                .toList()),
+                            m.body(), m.receiptHandle()))
+                    .toList()
+                : List.of());
+  }
+
+  private static MessageHeader toMessageHeader(MessageSystemAttributeName k, String v) {
+    return toMessageHeader(Messaging.AWS_HEADER_PREFIX + k,
+        MessageAttributeValue.builder().dataType("String").stringValue(v).build());
+  }
+
+  private static MessageHeader toMessageHeader(String k, MessageAttributeValue v) {
+    MessageHeaderValue value;
+    switch (v.dataType()) {
+      case "String":
+        value = MessageHeaderValue.of(v.stringValue());
+        break;
+      case "Number":
+        value = MessageHeaderValue.of(new BigDecimal(v.stringValue()));
+        break;
+      default:
+        throw new AssertionError(v.dataType());
+    }
+
+    return MessageHeader.of(k, value);
   }
 
   private SqsClient getClient() {

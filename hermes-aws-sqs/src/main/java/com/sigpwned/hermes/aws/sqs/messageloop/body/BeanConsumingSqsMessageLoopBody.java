@@ -32,10 +32,11 @@ public abstract class BeanConsumingSqsMessageLoopBody<T> extends ConsumingSqsMes
   }
 
   @Override
-  public void acceptMessages(List<SqsMessage> messages) {
+  protected void consumeMessages(List<SqsMessage> messages) {
     List<T> beans = new ArrayList<>();
     for (SqsMessage message : messages)
       beans.add(getDeserializer().deserializeBean(message));
+    acceptBeans(beans);
   }
 
   public abstract void acceptBeans(List<T> beans);

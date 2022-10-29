@@ -23,8 +23,18 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 import com.sigpwned.hermes.core.model.Message;
 import com.sigpwned.hermes.core.model.MessageContent;
+import com.sigpwned.hermes.core.model.MessageHeaders;
 
 public class SqsMessage extends Message {
+  public static SqsMessage of(String id, MessageHeaders headers, String body,
+      String receiptHandle) {
+    return of(id, MessageContent.of(headers, body), receiptHandle);
+  }
+
+  public static SqsMessage of(String id, MessageContent content, String receiptHandle) {
+    return new SqsMessage(id, content, receiptHandle);
+  }
+
   private final String receiptHandle;
   private boolean retired;
 

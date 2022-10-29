@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageconsumer;
 
+import static java.util.Collections.unmodifiableList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -32,13 +33,26 @@ public interface SqsMessageBatch extends Iterable<SqsMessage>, AutoCloseable {
   public List<SqsMessage> getMessages();
 
   @Override
-  public Iterator<SqsMessage> iterator();
+  default Iterator<SqsMessage> iterator() {
+    return unmodifiableList(getMessages()).iterator();
+  }
 
-  public Stream<SqsMessage> stream();
+  default Stream<SqsMessage> stream() {
+    return unmodifiableList(getMessages()).stream();
+  }
 
-  public int size();
+  default void retireAll() {
+    for (SqsMessage message : this)
+      message.retire();
+  }
 
-  public boolean isEmpty();
+  default int size() {
+    return getMessages().size();
+  }
+
+  default boolean isEmpty() {
+    return getMessages().isEmpty();
+  }
 
   @Override
   public void close();
