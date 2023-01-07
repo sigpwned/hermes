@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.aws.lambda.sqs;
 
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.sigpwned.hermes.core.MessageProducer;
@@ -41,7 +42,8 @@ public abstract class BeanSqsProcessorLambdaFunctionBase<I, O>
 
   @Override
   public List<MessageContent> processMessages(List<Message> inputMessages, Context context) {
-    List<I> inputBeans = inputMessages.stream().map(getDeserializer()::deserializeBean).toList();
+    List<I> inputBeans =
+        inputMessages.stream().map(getDeserializer()::deserializeBean).collect(toList());
     List<O> outputBeans = processBeans(inputBeans, context);
     return getSerializer().serializeBeans(outputBeans);
   }

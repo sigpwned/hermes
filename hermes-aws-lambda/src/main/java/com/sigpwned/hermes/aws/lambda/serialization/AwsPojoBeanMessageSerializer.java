@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.aws.lambda.serialization;
 
+import static java.util.stream.Collectors.toList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -47,7 +48,8 @@ public class AwsPojoBeanMessageSerializer<T> implements BeanMessageSerializer<T>
 
   @Override
   public List<MessageContent> serializeBeans(List<T> values) {
-    return values.stream().map(v -> MessageContent.of(MessageHeaders.EMPTY, toJson(v))).toList();
+    return values.stream().map(v -> MessageContent.of(MessageHeaders.EMPTY, toJson(v)))
+        .collect(toList());
   }
 
   private String toJson(T value) {

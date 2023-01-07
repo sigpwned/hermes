@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.jackson.serialization;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -50,7 +51,7 @@ public class JacksonBeanMessageSerializer<T> implements BeanMessageSerializer<T>
         throw new UncheckedIOException("Failed to serialize value " + v, e);
       }
       return MessageContent.of(MessageHeaders.EMPTY, body);
-    }).toList();
+    }).collect(toList());
   }
 
   /**

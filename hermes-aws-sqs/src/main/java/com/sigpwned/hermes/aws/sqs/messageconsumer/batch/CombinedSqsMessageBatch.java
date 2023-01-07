@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageconsumer.batch;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +37,7 @@ public class CombinedSqsMessageBatch implements SqsMessageBatch {
     if (batches.isEmpty())
       throw new IllegalArgumentException("no batches");
     List<SqsDestination> destinations =
-        batches.stream().map(SqsMessageBatch::getDestination).distinct().toList();
+        batches.stream().map(SqsMessageBatch::getDestination).distinct().collect(toList());
     if (destinations.size() > 1)
       throw new IllegalArgumentException("multiple destinations " + destinations);
     this.batches = batches;

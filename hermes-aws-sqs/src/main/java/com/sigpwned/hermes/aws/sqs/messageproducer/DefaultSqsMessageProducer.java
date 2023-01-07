@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.aws.sqs.messageproducer;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.sigpwned.hermes.aws.sqs.SqsDestination;
@@ -57,13 +58,14 @@ public class DefaultSqsMessageProducer implements SqsMessageProducer {
           "messages must have length no more than " + Sqs.MAX_SEND_BATCH_LENGTH);
     final AtomicInteger idseq = new AtomicInteger(1);
     List<Message> batch = messages.stream()
-        .map(m -> Message.of(Integer.toString(idseq.getAndIncrement()), m)).toList();
+        .map(m -> Message.of(Integer.toString(idseq.getAndIncrement()), m)).collect(toList());
     while (!batch.isEmpty()) {
       SendMessageBatchResponse response = getClient().sendMessageBatch(
           SendMessageBatchRequest.builder().queueUrl(getDestination().toQueueUrl())
-              .entries(batch.stream().map(Sqs::toSendMessageBatchRequestEntry).toList()).build());
+              .entries(batch.stream().map(Sqs::toSendMessageBatchRequestEntry).collect(toList()))
+              .build());
       batch = batch.stream().filter(m -> response.failed().stream().filter(f -> !f.senderFault())
-          .anyMatch(f -> m.getId().equals(f.id()))).toList();
+          .anyMatch(f -> m.getId().equals(f.id()))).collect(toList());
     }
   }
 

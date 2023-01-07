@@ -21,6 +21,7 @@ package com.sigpwned.hermes.aws.sqs.messageconsumer.batch;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import com.sigpwned.hermes.aws.sqs.SqsDestination;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
@@ -56,12 +57,12 @@ public class DefaultSqsMessageBatch implements SqsMessageBatch {
   @Override
   public void close() {
     List<DeleteMessageBatchRequestEntry> deletes = messages.stream().filter(SqsMessage::retired)
-        .map(Sqs::toDeleteMessageBatchRequestEntry).toList();
+        .map(Sqs::toDeleteMessageBatchRequestEntry).collect(toList());
     while (!deletes.isEmpty()) {
       DeleteMessageBatchResponse response = getClient().deleteMessageBatch(DeleteMessageBatchRequest
           .builder().queueUrl(getDestination().toQueueUrl()).entries(deletes).build());
       deletes = deletes.stream().filter(m -> response.failed().stream()
-          .filter(f -> !f.senderFault()).anyMatch(f -> m.id().equals(f.id()))).toList();
+          .filter(f -> !f.senderFault()).anyMatch(f -> m.id().equals(f.id()))).collect(toList());
     }
   }
 

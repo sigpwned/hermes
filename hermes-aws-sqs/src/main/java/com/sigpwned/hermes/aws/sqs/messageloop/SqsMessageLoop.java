@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.aws.sqs.messageloop;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.io.InterruptedIOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -112,7 +113,7 @@ public class SqsMessageLoop implements Runnable {
         result = firstBatch;
       } else {
         result = new CombinedSqsMessageBatch(
-            Stream.concat(Stream.of(firstBatch), lastBatches.stream()).toList());
+            Stream.concat(Stream.of(firstBatch), lastBatches.stream()).collect(toList()));
       }
     } else {
       result = firstBatch;

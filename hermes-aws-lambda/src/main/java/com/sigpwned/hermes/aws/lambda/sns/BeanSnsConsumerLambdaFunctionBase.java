@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.aws.lambda.sns;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.sigpwned.hermes.core.model.Message;
@@ -34,7 +35,8 @@ public abstract class BeanSnsConsumerLambdaFunctionBase<T> extends SnsConsumerLa
 
   @Override
   public void handleMessages(List<Message> messages, Context context) {
-    handleBeans(messages.stream().map(getDeserializer()::deserializeBean).toList(), context);
+    handleBeans(messages.stream().map(getDeserializer()::deserializeBean).collect(toList()),
+        context);
   }
 
   public abstract void handleBeans(List<T> values, Context context);

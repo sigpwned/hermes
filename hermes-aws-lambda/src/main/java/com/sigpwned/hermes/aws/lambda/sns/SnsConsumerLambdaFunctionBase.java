@@ -58,7 +58,7 @@ public abstract class SnsConsumerLambdaFunctionBase extends LambdaFunctionBase<S
     MessageHeaders headers = MessageHeaders.of(m.getSNS().getMessageAttributes().entrySet().stream()
         .flatMap(e -> toMessageAttributeValue(e.getValue())
             .map(v -> MessageHeader.of(e.getKey(), v)).stream())
-        .toList());
+        .collect(toList()));
 
     String body = m.getSNS().getMessage();
 

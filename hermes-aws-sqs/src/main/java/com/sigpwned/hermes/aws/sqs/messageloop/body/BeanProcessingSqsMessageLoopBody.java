@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.aws.sqs.messageloop.body;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessage;
 import com.sigpwned.hermes.core.MessageProducer;
@@ -40,7 +41,8 @@ public abstract class BeanProcessingSqsMessageLoopBody<I, O> extends ProcessingS
 
   @Override
   protected List<MessageContent> processMessages(List<SqsMessage> inputMessages) {
-    List<I> inputBeans = inputMessages.stream().map(getDeserializer()::deserializeBean).toList();
+    List<I> inputBeans =
+        inputMessages.stream().map(getDeserializer()::deserializeBean).collect(toList());
     List<O> outputBeans = processBeans(inputBeans);
     return getSerializer().serializeBeans(outputBeans);
   }

@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageconsumer;
 
+import static java.util.stream.Collectors.toList;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
@@ -74,21 +75,19 @@ public class SqsMessageConsumer {
         .visibilityTimeout(visibilityTimeout).waitTimeSeconds(waitTimeSeconds).build());
 
     return new DefaultSqsMessageBatch(getClient(), getDestination(),
-        response.hasMessages()
-            && !response.messages().isEmpty()
-                ? response.messages().stream()
-                    .map(
-                        m -> SqsMessage.of(m.messageId(),
-                            MessageHeaders.of(Stream
-                                .concat(
-                                    m.messageAttributes().entrySet().stream()
-                                        .map(e -> toMessageHeader(e.getKey(), e.getValue())),
-                                    m.attributes().entrySet().stream()
-                                        .map(e -> toMessageHeader(e.getKey(), e.getValue())))
-                                .toList()),
-                            m.body(), m.receiptHandle()))
-                    .toList()
-                : List.of());
+        response.hasMessages() && !response.messages().isEmpty()
+            ? response.messages().stream()
+                .map(m -> SqsMessage.of(m.messageId(),
+                    MessageHeaders.of(Stream
+                        .concat(
+                            m.messageAttributes().entrySet().stream()
+                                .map(e -> toMessageHeader(e.getKey(), e.getValue())),
+                            m.attributes().entrySet().stream()
+                                .map(e -> toMessageHeader(e.getKey(), e.getValue())))
+                        .collect(toList())),
+                    m.body(), m.receiptHandle()))
+                .collect(toList())
+            : List.of());
   }
 
   private static MessageHeader toMessageHeader(MessageSystemAttributeName k, String v) {

@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.aws.sns.messageproducer;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.sigpwned.hermes.aws.sns.SnsDestination;
@@ -54,14 +55,16 @@ public class DefaultSnsMessageProducer implements SnsMessageProducer {
   public void send(List<MessageContent> messages) {
     final AtomicInteger idseq = new AtomicInteger(1);
     List<Message> batch = messages.stream()
-        .map(m -> Message.of(Integer.toString(idseq.getAndIncrement()), m)).toList();
+        .map(m -> Message.of(Integer.toString(idseq.getAndIncrement()), m)).collect(toList());
     while (!batch.isEmpty()) {
-      PublishBatchResponse response = getClient().publishBatch(PublishBatchRequest.builder()
-          .topicArn(getDestination().toTopicArn())
-          .publishBatchRequestEntries(batch.stream().map(Sns::toPublishBatchRequestEntry).toList())
-          .build());
+      PublishBatchResponse response =
+          getClient()
+              .publishBatch(PublishBatchRequest.builder().topicArn(getDestination().toTopicArn())
+                  .publishBatchRequestEntries(
+                      batch.stream().map(Sns::toPublishBatchRequestEntry).collect(toList()))
+                  .build());
       batch = batch.stream().filter(m -> response.failed().stream().filter(f -> !f.senderFault())
-          .anyMatch(f -> m.getId().equals(f.id()))).toList();
+          .anyMatch(f -> m.getId().equals(f.id()))).collect(toList());
     }
   }
 
