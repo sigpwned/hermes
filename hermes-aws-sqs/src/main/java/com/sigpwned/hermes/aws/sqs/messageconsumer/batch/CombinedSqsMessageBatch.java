@@ -19,8 +19,8 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageconsumer.batch;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -42,8 +42,8 @@ public class CombinedSqsMessageBatch implements SqsMessageBatch {
       throw new IllegalArgumentException("multiple destinations " + destinations);
     this.batches = batches;
     this.destination = destinations.get(0);
-    this.messages =
-        getBatches().stream().flatMap(b -> b.getMessages().stream()).collect(toUnmodifiableList());
+    this.messages = unmodifiableList(
+        getBatches().stream().flatMap(b -> b.getMessages().stream()).collect(toList()));
   }
 
   @Override

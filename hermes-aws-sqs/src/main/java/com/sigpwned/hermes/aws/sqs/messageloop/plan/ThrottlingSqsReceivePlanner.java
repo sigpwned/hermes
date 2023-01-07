@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsReceivePlan;
@@ -43,7 +44,8 @@ public class ThrottlingSqsReceivePlanner implements SqsReceivePlanner {
       throw new IllegalArgumentException("minimumDuration must not be negative");
     this.delegate = requireNonNull(delegate);
     this.minimumDuration = requireNonNull(minimumDuration);
-    this.last = OffsetDateTime.of(LocalDate.EPOCH, LocalTime.MIN, ZoneOffset.UTC);
+    this.last =
+        OffsetDateTime.of(LocalDate.of(1970, Month.JANUARY, 1), LocalTime.MIN, ZoneOffset.UTC);
   }
 
   @Override

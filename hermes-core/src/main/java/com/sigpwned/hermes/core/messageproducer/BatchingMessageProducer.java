@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.core.messageproducer;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toCollection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +48,7 @@ public abstract class BatchingMessageProducer implements MessageProducer {
   public void send(List<MessageContent> messages) {
     List<MessageContent> combined;
     if (messages.isEmpty()) {
-      combined = List.of();
+      combined = emptyList();
     } else {
       combined = combine(messages);
     }

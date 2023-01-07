@@ -19,10 +19,10 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageloop.plan;
 
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.List;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.SqsMessageBatch;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsMessageLoopBody;
 import com.sigpwned.hermes.aws.sqs.messageloop.SqsReceivePlan;
@@ -66,7 +66,7 @@ public class BackoffSqsReceivePlanner implements SqsReceivePlanner {
 
     if (consecutiveErrors > 0)
       Thread.sleep(
-          Collections.min(List.of(backoff(consecutiveErrors), getMaximumBackoff())).toMillis());
+          Collections.min(asList(backoff(consecutiveErrors), getMaximumBackoff())).toMillis());
 
     return getDelegate().plan();
   }

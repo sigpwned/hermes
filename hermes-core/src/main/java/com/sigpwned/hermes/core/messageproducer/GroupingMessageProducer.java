@@ -20,6 +20,7 @@
 package com.sigpwned.hermes.core.messageproducer;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toCollection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +50,7 @@ public abstract class GroupingMessageProducer implements MessageProducer {
   public void send(List<MessageContent> messages) {
     List<List<MessageContent>> grouped;
     if (messages.isEmpty()) {
-      grouped = List.of();
+      grouped = emptyList();
     } else {
       grouped = group(messages);
     }

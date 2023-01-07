@@ -19,9 +19,9 @@
  */
 package com.sigpwned.hermes.aws.sqs.messageconsumer;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.stream.Stream;
 import com.sigpwned.hermes.aws.sqs.SqsDestination;
 import com.sigpwned.hermes.aws.sqs.messageconsumer.batch.DefaultSqsMessageBatch;
@@ -87,7 +87,7 @@ public class SqsMessageConsumer {
                         .collect(toList())),
                     m.body(), m.receiptHandle()))
                 .collect(toList())
-            : List.of());
+            : emptyList());
   }
 
   private static MessageHeader toMessageHeader(MessageSystemAttributeName k, String v) {

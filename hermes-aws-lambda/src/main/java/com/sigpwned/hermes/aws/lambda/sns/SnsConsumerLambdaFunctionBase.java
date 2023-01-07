@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -56,13 +57,17 @@ public abstract class SnsConsumerLambdaFunctionBase extends LambdaFunctionBase<S
     String id = m.getSNS().getMessageId();
 
     MessageHeaders headers = MessageHeaders.of(m.getSNS().getMessageAttributes().entrySet().stream()
-        .flatMap(e -> toMessageAttributeValue(e.getValue())
-            .map(v -> MessageHeader.of(e.getKey(), v)).stream())
+        .flatMap(e -> stream(
+            toMessageAttributeValue(e.getValue()).map(v -> MessageHeader.of(e.getKey(), v))))
         .collect(toList()));
 
     String body = m.getSNS().getMessage();
 
     return Message.of(id, headers, body);
+  }
+
+  private static <T> Stream<T> stream(Optional<T> o) {
+    return o.isPresent() ? Stream.of(o.get()) : Stream.empty();
   }
 
   protected static Optional<MessageHeaderValue> toMessageAttributeValue(MessageAttribute a) {

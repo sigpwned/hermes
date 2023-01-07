@@ -19,6 +19,7 @@
  */
 package com.sigpwned.hermes.core.model;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class MessageHeaders implements Iterable<MessageHeader> {
-  public static final MessageHeaders EMPTY = of(List.of());
+  public static final MessageHeaders EMPTY = of(emptyList());
 
   public static MessageHeaders of() {
     return EMPTY;
